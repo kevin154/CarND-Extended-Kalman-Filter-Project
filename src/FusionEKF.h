@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "math.h"
 #include "Eigen/Dense"
 #include "kalman_filter.h"
 #include "measurement_package.h"
@@ -44,6 +45,9 @@ class FusionEKF {
   Eigen::MatrixXd R_radar_;
   Eigen::MatrixXd H_laser_;
   Eigen::MatrixXd Hj_;
+  double noise_ax_;
+  double noise_ay_;
 };
 
 #endif // FusionEKF_H_
+
