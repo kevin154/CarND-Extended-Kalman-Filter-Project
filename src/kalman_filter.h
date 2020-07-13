@@ -1,6 +1,7 @@
 #ifndef KALMAN_FILTER_H_
 #define KALMAN_FILTER_H_
 
+#include "math.h"
 #include "Eigen/Dense"
 
 class KalmanFilter {
@@ -66,3 +67,4 @@ class KalmanFilter {
 };
 
 #endif // KALMAN_FILTER_H_
+
