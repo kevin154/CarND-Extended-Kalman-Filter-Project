@@ -64,31 +64,35 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   /**
    * TODO: update the state by using Extended Kalman Filter equations
    */
-  double px, py, vx, vy;
-  double rho, phi, rhodot;
   
+  // Position variables
+  double px, py, vx, vy;
   px = x_[0];
   py = x_[1];
   vx = x_[2];
   vy = x_[3];
  
+  // Convert from cartesian to polar
+  double rho, phi, rhodot;
   // Ensure no division by 0, set rho to a minimum positive number
   rho = std::max(0.000001, hypot(px, py));
   // atan2 returns a number within [-pi, pi]  
   phi = atan2(py, px);
   rhodot = (px * vx + py * vy) / rho;
   
+  // Container for polar variables
   VectorXd hx = VectorXd(3);
   hx << rho, phi, rhodot;
   
+  // Calculate difference and normalise angle to ensure it is within [-pi, pi]  
   VectorXd y = z - hx;
-  // Normalise angle to ensure it is within [-pi, pi]  
   y(1) = normaliseAngle(y(1));
   
   MatrixXd S = H_ * P_ * H_.transpose() + R_;
   MatrixXd K = P_ * H_.transpose() * S.inverse();
-   
-  x_ = x_ + (K * y);
   MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
+  
+  // Update position
+  x_ = x_ + (K * y);
   P_ = (I - K * H_) * P_;
 }
