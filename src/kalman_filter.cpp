@@ -1,4 +1,5 @@
 #include "kalman_filter.h"
+#include <iostream>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -22,20 +23,72 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
   Q_ = Q_in;
 }
 
+// Ensures given input angle is within [-pi, pi] radians
+// Recursively moves input angle within range, should require <=2 calls
+double normaliseAngle(double angle){
+  
+  if (angle > M_PI){
+      angle -= 2*M_PI;
+      normaliseAngle(angle);
+  }
+  else if (angle < -M_PI){
+      angle += 2*M_PI;
+      normaliseAngle(angle);
+  }
+  return angle;
+}
+
 void KalmanFilter::Predict() {
   /**
    * TODO: predict the state
    */
+  x_ = F_ * x_;
+  P_ = F_ * P_ * F_.transpose() + Q_;
 }
 
 void KalmanFilter::Update(const VectorXd &z) {
   /**
    * TODO: update the state by using Kalman Filter equations
    */
+   VectorXd zpred = H_ * x_; 
+   VectorXd y = z - zpred;
+   MatrixXd S = H_ * P_ * H_.transpose() + R_;
+   MatrixXd K = P_ * H_.transpose() * S.inverse();
+   
+   x_ = x_ + (K * y);
+   MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
+   P_ = (I - K * H_) * P_;
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
   /**
    * TODO: update the state by using Extended Kalman Filter equations
    */
+  double px, py, vx, vy;
+  double rho, phi, rhodot;
+  
+  px = x_[0];
+  py = x_[1];
+  vx = x_[2];
+  vy = x_[3];
+ 
+  // Ensure no division by 0, set rho to a minimum positive number
+  rho = std::max(0.000001, hypot(px, py));
+  // atan2 returns a number within [-pi, pi]  
+  phi = atan2(py, px);
+  rhodot = (px * vx + py * vy) / rho;
+  
+  VectorXd hx = VectorXd(3);
+  hx << rho, phi, rhodot;
+  
+  VectorXd y = z - hx;
+  // Normalise angle to ensure it is within [-pi, pi]  
+  y(1) = normaliseAngle(y(1));
+  
+  MatrixXd S = H_ * P_ * H_.transpose() + R_;
+  MatrixXd K = P_ * H_.transpose() * S.inverse();
+   
+  x_ = x_ + (K * y);
+  MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
+  P_ = (I - K * H_) * P_;
 }
