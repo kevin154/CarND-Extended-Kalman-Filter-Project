@@ -10,10 +10,6 @@ Tools::~Tools() {}
 
 VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
                               const vector<VectorXd> &ground_truth) {
-  /**
-   * TODO: Calculate the RMSE here.
-   */
-
   // Validate inputs
   if (estimations.size() == 0) throw std::invalid_argument("Estimation vector must not be empty");
   if (estimations.size() != ground_truth.size()) throw std::invalid_argument("Estimation and Ground Truth vectors must be same size");
@@ -40,10 +36,6 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
 }
 
 MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
-  /**
-   * TODO:
-   * Calculate a Jacobian here.
-   */
   
   // Get state parameters
   double px, py, vx, vy, rtSumSq, sumSq;
